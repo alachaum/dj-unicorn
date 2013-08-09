@@ -1,0 +1,1 @@
+require File.expand_path("../../lib/dj_unicorn", __FILE__)

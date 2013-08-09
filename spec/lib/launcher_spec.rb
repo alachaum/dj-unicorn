@@ -39,18 +39,39 @@ describe DJUnicorn::Launcher do
           capture_sysexit { @mod.daemonize!({}) }
         end
         th.should be_alive
-        wr.syswrite(245.to_s)
-        th.join(5)
+        wr.syswrite(245.to_s) #without this call rspec would hang
+        th.join
         th.should_not be_alive
       end
     end
     
     describe "parent process" do
+      before(:each) do
+        ENV['DJ_UNICORN_REEXEC'] = nil
+      end
       
+      it "forks to create the dj_unicorn master process and exits" do
+        @mod.should_receive(:fork).once.ordered.and_return(nil)
+        @mod.should_receive(:fork).once.ordered.and_return(123)
+        capture_sysexit { @mod.daemonize!({}) }
+      end
     end
     
-    describe "dj_master process" do
-      
+    describe "dj_unicorn master process" do
+      # Haven't found a way to test this part yet
+      #
+      # before(:each) do
+      #   ENV['DJ_UNICORN_REEXEC'] = nil
+      #   Process.stub(:setsid)
+      #   @mod.stub(:fork).and_return(nil)
+      # end
+      # 
+      # it "captures the write_io as 'ready_pipe' on options hash" do
+      #   wr,rd = stub_io_pipe
+      #   options = {}
+      #   capture_sysexit { @mod.daemonize!(options) }
+      #   options[:ready_pipe].should == wr
+      # end
     end
   end
 end
